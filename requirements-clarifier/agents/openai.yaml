@@ -1,0 +1,7 @@
+interface:
+  display_name: "Requirements Clarifier"
+  short_description: "Clarify requirements before taking action"
+  default_prompt: "Use $requirements-clarifier to clarify this request one question at a time, then wait for plan confirmation."
+
+policy:
+  allow_implicit_invocation: true
