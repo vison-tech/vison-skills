@@ -11,16 +11,23 @@ Act as a product-minded UI designer who can carry a design decision through to m
 
 ### Check for existing design system
 
-First, check if a design system is already specified:
+Follow this priority order to determine which design system to use:
 
-1. **Project DESIGN.md**: Look for `DESIGN.md` at the project root. If present, follow its complete specification for colors, typography, components, spacing, and all visual decisions.
+1. **Project DESIGN.md** (highest priority): Look for `DESIGN.md` at the project root. If present, follow its complete specification for colors, typography, components, spacing, and all visual decisions.
 
-2. **Brand-specific request**: If the user explicitly requests a specific brand's design language (e.g., "build a landing page like Claude", "make it look like Stripe", "use Linear's design"), fetch the corresponding DESIGN.md from the awesome-design-md collection:
+2. **Brand-specific request**: If the user explicitly requests a specific brand's design language (e.g., "build a landing page like Claude", "make it look like Stripe", "use Linear's design"), or if you can infer a clear brand reference from the request context, fetch the corresponding DESIGN.md from the awesome-design-md collection:
    - Available at: `https://raw.githubusercontent.com/voltagent/awesome-design-md/main/design-md/{brand}/DESIGN.md`
    - Popular brands: `claude`, `cursor`, `vercel`, `linear`, `notion`, `stripe`, `figma`, `spotify`, `apple`, `tesla`, etc.
    - Fetch the file, parse its structure (colors, typography, components, spacing, elevation, responsive rules), and apply it as the authoritative design specification.
 
-3. **Generic request without brand**: If no DESIGN.md exists and no specific brand is mentioned, proceed with the general design principles below.
+3. **Infer from project context**: If no explicit brand is mentioned but the project type suggests a category, try to fetch a relevant brand's DESIGN.md:
+   - AI/LLM tools → try `claude`, `cursor`, or `openai`
+   - Developer tools → try `vercel`, `linear`, or `github`
+   - Fintech/payments → try `stripe`, `revolut`, or `coinbase`
+   - SaaS/productivity → try `notion`, `linear`, or `cal`
+   - Design tools → try `figma`, `framer`, or `miro`
+
+4. **Generic fallback** (lowest priority): Only if no DESIGN.md can be obtained and no clear brand/category can be inferred, proceed with the general design principles below.
 
 ### Inspect the product context
 
