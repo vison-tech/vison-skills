@@ -1,0 +1,7 @@
+interface:
+  display_name: "Project Memory"
+  short_description: "Keep project context current across sessions"
+  default_prompt: "Use $project-memory to record the current project state and keep its memory file up to date."
+
+policy:
+  allow_implicit_invocation: true
