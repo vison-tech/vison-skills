@@ -1,13 +1,28 @@
 ---
 name: ui-design
-description: Design, critique, and implement polished user interfaces for this project, especially Vue business portals and finance/admin workflows. Use when a request involves page structure, visual hierarchy, interaction states, responsive behavior, accessibility, or UI refinement; do not use for backend-only changes.
+description: Design, critique, and implement polished user interfaces with automatic brand design system integration from awesome-design-md when requested. Use when a request involves page structure, visual hierarchy, interaction states, responsive behavior, accessibility, or UI refinement; do not use for backend-only changes.
 ---
 
 # UI Design
 
 Act as a product-minded UI designer who can carry a design decision through to maintainable frontend code. Optimize for clarity, trust, task completion, and consistency before decoration.
 
-## Start with the product context
+## Start with the design system context
+
+### Check for existing design system
+
+First, check if a design system is already specified:
+
+1. **Project DESIGN.md**: Look for `DESIGN.md` at the project root. If present, follow its complete specification for colors, typography, components, spacing, and all visual decisions.
+
+2. **Brand-specific request**: If the user explicitly requests a specific brand's design language (e.g., "build a landing page like Claude", "make it look like Stripe", "use Linear's design"), fetch the corresponding DESIGN.md from the awesome-design-md collection:
+   - Available at: `https://raw.githubusercontent.com/voltagent/awesome-design-md/main/design-md/{brand}/DESIGN.md`
+   - Popular brands: `claude`, `cursor`, `vercel`, `linear`, `notion`, `stripe`, `figma`, `spotify`, `apple`, `tesla`, etc.
+   - Fetch the file, parse its structure (colors, typography, components, spacing, elevation, responsive rules), and apply it as the authoritative design specification.
+
+3. **Generic request without brand**: If no DESIGN.md exists and no specific brand is mentioned, proceed with the general design principles below.
+
+### Inspect the product context
 
 Before changing a screen, inspect the existing frontend entry points, router, layout, styles, representative views, package manifest, and any API/loading/error states. Preserve the project's framework, naming conventions, existing user flows, and current uncommitted work. Infer the user role, primary task, data density, risk level, and the most important next action from the product context.
 
@@ -15,7 +30,15 @@ For this repository, treat the Vue 3 + Vite portal and its existing global CSS a
 
 ## Design method
 
-For each requested screen or change:
+When a DESIGN.md is active (from project root or fetched from awesome-design-md):
+
+1. Extract and apply the design tokens: colors (with semantic roles), typography hierarchy, spacing scale, border radius values, elevation system, and component specifications.
+2. Follow the Do's and Don'ts section strictly—these are the brand's non-negotiable design rules.
+3. Use the exact component patterns specified (buttons, cards, inputs, navigation) with their defined states.
+4. Apply the responsive behavior and breakpoint strategy as documented.
+5. Match the visual atmosphere and density philosophy described in the overview.
+
+For generic design work without a DESIGN.md:
 
 1. State the user goal and success condition in one sentence.
 2. Define the information hierarchy: page purpose, primary action, key facts, secondary actions, and progressive disclosure.
@@ -67,13 +90,19 @@ Before handing off, verify:
 
 ## Reference basis
 
-This skill distills, rather than copies, the principles of the following public sources:
+This skill integrates:
 
-- Material Design 3 Foundations: https://m3.material.io/foundations
-- Apple Human Interface Guidelines: https://developer.apple.com/design/human-interface-guidelines/
-- Ant Design Design Spec: https://ant.design/docs/spec/introduce
-- Radix Primitives accessibility and composition guidance: https://www.radix-ui.com/primitives/docs/overview/introduction
-- shadcn/ui Skills guidance: https://ui.shadcn.com/docs/skills
-- W3C WCAG overview: https://www.w3.org/WAI/standards-guidelines/wcag/
+- **awesome-design-md collection**: 70+ brand design systems in DESIGN.md format from https://github.com/voltagent/awesome-design-md
+  - Automatically fetched when user requests a specific brand's design language
+  - Includes AI platforms (Claude, OpenAI, Cursor), developer tools (Vercel, Linear, Figma), fintech (Stripe, Revolut), and consumer brands (Apple, Spotify, Tesla)
+  - Each DESIGN.md provides complete specifications: colors, typography, components, spacing, elevation, responsive behavior, and design rules
+
+- **General design principles** distilled from:
+  - Material Design 3 Foundations: https://m3.material.io/foundations
+  - Apple Human Interface Guidelines: https://developer.apple.com/design/human-interface-guidelines/
+  - Ant Design Design Spec: https://ant.design/docs/spec/introduce
+  - Radix Primitives accessibility and composition guidance: https://www.radix-ui.com/primitives/docs/overview/introduction
+  - shadcn/ui Skills guidance: https://ui.shadcn.com/docs/skills
+  - W3C WCAG overview: https://www.w3.org/WAI/standards-guidelines/wcag/
 
 Use these links for targeted verification when a design decision depends on a platform or accessibility detail; do not load every source by default.
