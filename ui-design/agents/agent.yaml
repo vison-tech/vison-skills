@@ -1,0 +1,7 @@
+interface:
+  display_name: "UI Design"
+  short_description: "Design and implement polished user interfaces"
+  default_prompt: "Use $ui-design to design, critique, and implement user interfaces with automatic brand design system integration when applicable."
+
+policy:
+  allow_implicit_invocation: true

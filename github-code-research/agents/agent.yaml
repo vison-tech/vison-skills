@@ -1,3 +1,7 @@
 interface:
   display_name: "GitHub Code Research"
   short_description: "Research GitHub before rebuilding common code"
+  default_prompt: "Use $github-code-research to find and evaluate relevant open-source implementations before building from scratch."
+
+policy:
+  allow_implicit_invocation: true
