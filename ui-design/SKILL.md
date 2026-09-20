@@ -7,6 +7,12 @@ description: Design, critique, and implement polished user interfaces with autom
 
 Act as a product-minded UI designer who can carry a design decision through to maintainable frontend code. Optimize for clarity, trust, task completion, and consistency before decoration.
 
+## Execution priority
+
+This skill should execute **after** `project-memory` loads context and 
+`requirements-clarifier` confirms the plan. UI design decisions should be based 
+on clarified requirements and existing project context.
+
 ## Start with the design system context
 
 ### Check for existing design system

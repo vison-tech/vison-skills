@@ -10,6 +10,13 @@ normal engineering work. This is a prompt-level workflow, not a background
 filesystem watcher: make the read/update actions explicitly during relevant
 tasks.
 
+## Execution priority
+
+This skill should execute **first** in the skill chain, before other skills like
+`requirements-clarifier`, `ui-design`, or `github-code-research`. Always load
+existing project memory at the start of a new task to provide context for
+subsequent clarification and implementation steps.
+
 ## Memory location
 
 Use the first applicable path:
