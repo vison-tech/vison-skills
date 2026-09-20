@@ -10,9 +10,36 @@ This is an interactive gate: do not inspect files, run commands, browse, edit,
 install, send messages, or perform other task operations until the user confirms
 the proposed plan.
 
+## Execution priority
+
+This skill should execute **after** `project-memory` loads context but **before** 
+other implementation skills like `ui-design` or `github-code-research`. The 
+typical flow is:
+
+1. `project-memory` reads existing project state
+2. `requirements-clarifier` clarifies and confirms the plan
+3. Implementation skills (`ui-design`, `github-code-research`, etc.) execute based on the confirmed plan
+
 ## Start every new request with clarification
 
-For each new actionable request, pause and ask exactly one focused question.
+For each new actionable request, evaluate whether clarification is needed:
+
+**Skip clarification if the request meets ALL of these criteria:**
+- The request is specific, unambiguous, and can be understood literally
+- The operation is low-risk: single file edit, reversible, no destructive actions
+- The scope is narrow and well-bounded (e.g., "change line 42 to use const instead of let")
+- The acceptance criteria are implicit and obvious
+
+For such low-risk requests, state your understanding and assumptions briefly, then proceed directly.
+
+**Require clarification if ANY of these apply:**
+- The request is ambiguous or could be interpreted multiple ways
+- Multiple approaches exist with different tradeoffs
+- The scope is unclear or potentially broad
+- The operation involves risk (destructive actions, external systems, multiple files)
+- Acceptance criteria are not obvious
+
+For requests requiring clarification, pause and ask exactly one focused question.
 Choose the single unresolved detail whose answer would most change the scope,
 result, or safety of the work. Ask the question in plain language and wait for
 the answer before asking the next one.

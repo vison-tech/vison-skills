@@ -8,6 +8,12 @@ description: Research relevant GitHub projects and implementations before buildi
 Find practical, compatible reuse opportunities without turning every change into
 an internet-research task.
 
+## Execution priority
+
+This skill should execute **after** `project-memory` loads context and 
+`requirements-clarifier` confirms the plan. Research decisions should be based 
+on clarified requirements and existing project constraints.
+
 ## When to research
 
 Before implementing, inspect the current repository's dependencies, conventions,
