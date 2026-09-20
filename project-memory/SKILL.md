@@ -14,11 +14,11 @@ tasks.
 
 Use the first applicable path:
 
-1. `.codex/project-memory.md` at the project root (preferred).
-2. `PROJECT_MEMORY.md` at the project root when `.codex` is unavailable or the
+1. `.memory/project-memory.md` at the project root (preferred).
+2. `PROJECT_MEMORY.md` at the project root when `.memory` is unavailable or the
    project convention uses a root-level file.
 
-If neither exists, create `.codex/project-memory.md` only when the project is
+If neither exists, create `.memory/project-memory.md` only when the project is
 under version control or the user has clearly asked for project memory. Do not
 create a memory file in a general notes folder for a repository task.
 
