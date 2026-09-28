@@ -1,6 +1,6 @@
 ---
 name: project-memory
-description: Maintain a concise, project-local memory file so a new Codex session can quickly recover the current state, decisions, commands, blockers, and next steps. Use during coding, debugging, reviews, and project planning; do not create memory for one-off non-project questions.
+description: Maintain concise project-local memory and a reusable code index so later sessions can recover context and locate implementation without repeatedly scanning the repository. Use during coding, debugging, reviews, and project planning; do not create memory for one-off non-project questions.
 ---
 
 # Project Memory
@@ -39,6 +39,63 @@ memory does not cause unrelated user changes to be overwritten.
 If the file is missing, continue normally and create it after the first
 meaningful project change or when the user asks for a status snapshot.
 
+## Initialize the project index
+
+On first memory initialization, also create `.memory/project-index.md` and
+link it from the memory file. If the project uses root-level memory because
+`.memory` is unavailable, use `PROJECT_INDEX.md` beside `PROJECT_MEMORY.md`.
+For existing memory without an index, build the index on the next relevant
+task. Respect existing equivalent indexes instead of creating duplicates.
+
+Build a useful project map once: inspect the file tree with `rg --files`,
+project documentation, manifests, and representative entry points. Identify
+major modules, their responsibilities, runtime entry points, configuration,
+and test/build locations. Exclude dependencies, generated output, caches,
+and vendored code unless directly relevant. Do not read every source file or
+claim complete coverage; mark areas that have not yet been inspected.
+
+Keep a compact module directory and task lookup table:
+
+```markdown
+# Project Index
+
+Updated: YYYY-MM-DD
+Coverage: Areas inspected and areas still unmapped.
+
+## Module map
+| Area | Responsibility | Entry paths / key symbols | Related tests / configuration |
+| --- | --- | --- | --- |
+
+## Task and bug lookup
+| Feature / symptom / search terms | Implementation paths / symbols | Related flow / tests | Findings / verification |
+| --- | --- | --- | --- |
+```
+
+Use repository-relative paths and stable symbol names; line numbers are
+optional hints, never the sole locator. Include the date or commit of
+verification for entries. Link larger module notes only when needed and
+load only notes relevant to the task; keep source code in the source files.
+
+## Locate before changing logic or fixing bugs
+
+1. Read project memory and search the index for the feature, symptom, module,
+   and known aliases before searching repository-wide.
+2. Follow matching paths and symbols. Verify that they still exist and inspect
+   the relevant implementation and tests before relying on previous findings.
+   Treat indexed bug causes as historical context, not proof of the current cause.
+3. If an entry is missing, stale, or insufficient, search the likely module
+   first using `rg` and inspect the related call chain. Widen the search only
+   as needed. Once the implementation is located, add or repair its index entry
+   before continuing the change; record only verified findings and label open
+   questions. A missing index entry must not block the actual task.
+4. After the change or fix, update the affected entries with the resulting
+   behavior, confirmed root cause when applicable, and regression test or
+   verification command and observed result. Remove obsolete paths and findings.
+
+Reuse unaffected entries. Do not rebuild the index or scan all code on every
+task. Broader discovery is appropriate when targeted lookup fails or major
+restructuring makes the map unreliable; refresh only affected areas where possible.
+
 ## What to record
 
 Keep the file short and scannable. Preserve this structure unless an existing
@@ -54,6 +111,7 @@ Updated: YYYY-MM-DD
 
 ## Architecture and conventions
 - Important modules, data flow, interfaces, and project-specific rules.
+- Project index: [Project Index](project-index.md).
 
 ## Decisions
 - Decision — reason — date (or commit/issue if useful).
@@ -85,6 +143,9 @@ Update the memory in the same task after a meaningful change, such as:
 Do not update for every file edit or transient tool output. Before writing,
 re-read the existing file and merge the new facts; do not replace useful context
 with a session transcript. Remove stale statements and keep “Next steps” honest.
+Update the affected index entries in the same task when files, symbols,
+responsibilities, or call paths change. Keep detailed lookup information in
+the index and concise project status in memory; avoid duplicating both.
 
 ## Safety and scope
 
