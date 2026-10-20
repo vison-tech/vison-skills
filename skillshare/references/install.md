@@ -1,4 +1,4 @@
-# Install, Update, Uninstall & New
+# Install, Update, Uninstall, Move & New
 
 Use `-p` for project resources or `-g` for global resources. For native agent workflows,
 see [native-agents.md](native-agents.md). These examples use skills unless specified otherwise.
@@ -23,6 +23,7 @@ git.company.com/team/skills   # Self-hosted
 # Full URLs
 github.com/user/repo          # Discovers skills in repo
 github.com/user/repo/path     # Direct subdirectory
+github.com/user/repo/tree/v1.2.0/path  # Pinned to a tag, commit or branch (GitLab -/tree/<ref>/, Bitbucket src/<ref>/)
 https://github.com/...        # HTTPS URL
 git@github.com:...            # SSH URL
 git@host:owner/repo//subdir   # SSH with subpath (// separator)
@@ -66,10 +67,10 @@ skillshare install user/repo --skip-audit             # Skip security scan
 | `--name <n>` | Override skill name |
 | `--kind <skill\|agent>` | Restrict resource discovery |
 | `--agent, -a <names>` | Select agents by name (comma-separated) |
-| `--branch, -b <name>` | Select a Git branch |
+| `--branch, -b <name>` | Select a Git branch, tag or commit SHA (overrides a ref in a web URL) |
 | `--force, -f` | Overwrite existing and explicitly override audit blocking |
 | `--update, -u` | Update if exists |
-| `--track, -t` | Track for updates (preserves .git) |
+| `--track, -t` | Track for updates (preserves .git); a local path works if it is a git repository |
 | `--skill, -s <names>` | Select specific skills from multi-skill repo (comma-separated) |
 | `--into <dir>` | Install into subdirectory (e.g., `--into frontend`) |
 | `--all` | Install all discovered skills without prompting |
@@ -81,6 +82,8 @@ skillshare install user/repo --skip-audit             # Skip security scan
 | `--dry-run, -n` | Preview |
 
 **Fuzzy subdirectory resolution:** When a monorepo has nested skill directories, you can specify just the skill name — e.g., `user/repo/vue-best-practices` finds `skills/vue-best-practices/` automatically. Fails with an error if multiple matches exist.
+
+**Git submodules:** skillshare does not fetch submodules. A path that is, or lies inside, a submodule fails with an error naming its upstream URL; install from that upstream instead. Whole-repo browsing, `--track` and `update` warn about each submodule they skip.
 
 **Tracked repos:** Prefixed with `_`, nested with `__` (e.g., `_team__frontend__ui`).
 Tracked custom names must not contain path separators (`/`, `\`) or `..`.
@@ -116,12 +119,15 @@ skillshare check -p          # Check project skills
 - **Local skills:** Shown as "local source"
 - **Targets validation:** Warns about unknown target names in skill-level `targets` field
 
+With `follow_source_links: true`, check a followed Git checkout by its link name:
+`skillshare check _dev-skills`.
+
 ## update
 
 Update installed skills or tracked repositories.
 
 - **Tracked repos (`_repo-name`):** Runs `git pull`
-- **Regular skills:** Reinstalls from stored source metadata
+- **Regular skills:** Reinstalls from stored source metadata. `--all`, `--group`, and several skills named with `-p` skip the ones already at the upstream commit and report them as up to date; `--force` reinstalls them anyway
 
 ```bash
 # Global
@@ -152,14 +158,17 @@ skillshare update _repo --force -p  # Discard local changes
 | `--json` | JSON output |
 | `--diff` | Show file-level change summary after update |
 
-**Safety:** Tracked repos with uncommitted changes are skipped. Use `--force` to override.
+With `follow_source_links: true`, `update --all` skips followed Git checkouts,
+even with `--force`; update them by name instead.
+
+**Safety:** Tracked repos with uncommitted changes are skipped, and repos whose git status cannot be read fail. Use `--force` to override both.
 
 **Security:** Updates roll back when findings reach the configured block threshold.
 `--audit-threshold` / `--threshold` / `-T` overrides the threshold for the run.
 Explicit `--force` can discard local changes and override audit blocking;
 `--skip-audit` skips scanning. Review findings before selecting either override.
 
-**After update:** `skillshare sync`
+**After update:** `skillshare sync` applies remaining target changes. Existing symlinks already read updated source content; managed copies and added, removed, or renamed links may still need sync. The dashboard's Updates tab checks that kind's pending changes before offering **Sync Now**, reports when no sync is needed, and offers **Retry** if the check fails.
 
 ## uninstall
 
@@ -189,11 +198,52 @@ skillshare uninstall --group frontend --dry-run
 skillshare uninstall my-skill --json
 ```
 
+**Tracked repo names:** `uninstall org/team` accepts the shorthand for `org/_team` installed with `--into org`. An existing skill or folder at the typed path wins; use `org/_team` to explicitly remove the repo. Ambiguous short names require the full path.
+
+**Safety:** Tracked repos with uncommitted changes are skipped, and repos whose git status cannot be read fail. Use `--force` to override both.
+
 **Group auto-detection:** When uninstalling a directory that contains sub-skills, the confirmation prompt shows `Uninstalling group (N skills)` with a list of contained skills.
 
 **Undo:** `skillshare trash restore <name>` to recover. See [trash.md](trash.md).
 
 **After uninstall:** `skillshare sync`
+
+## move
+
+Move installed skills, or whole folders, to another folder of the source, keeping install
+records, audit acceptances and (project mode) the lock pin and config group. Nothing is
+downloaded again. Use it instead of `mv` for installed skills.
+
+```bash
+skillshare move react-best-practices frontend      # Skill -> frontend/react-best-practices
+skillshare move pdf docx office                    # Several skills into office/
+skillshare move frontend archive                   # Folder -> archive/frontend/
+skillshare move archive/old-skill .                # Back to the source root
+skillshare move my-skill frontend --dry-run        # Preview
+skillshare move my-skill frontend -p --json        # Project mode, JSON output
+```
+
+The last argument is the destination folder relative to the skills source; `.` is the source
+root. A name resolves as exact skill path, exact folder path, flat name (`grp__demo`), then
+unique skill base name. A skill with nested skills moves with them.
+
+| Flag | Description |
+|------|-------------|
+| `--dry-run, -n` | Preview, change nothing |
+| `--force, -f` | Accept a target-name collision only; never overwrites or moves tracked or linked content |
+| `--json` | JSON output: `moved`, `failed` (with `code`), `skipped`, `warnings`, `dry_run`, `duration` |
+| `--project, -p` / `--global, -g` | Select mode |
+
+Agents are not supported (no `--kind`). Refusals use stable codes in `failed[].code`:
+`skill_not_found`, `ambiguous_name`, `dest_exists` (never overwritten), `inside_tracked_repo`,
+`dest_inside_tracked_repo`, `linked_folder`, `dest_is_skill`, `invalid_dest`,
+`dest_inside_source_folder`, `duplicate_dest`, `overlapping_sources`, `same_folder` (no-op),
+`name_collision`, `ambiguous_record`. A folder holding a tracked repo is refused as a whole before anything is renamed.
+The exit code is non-zero when `failed` is not empty.
+
+**After move:** `skillshare sync`. Move does not sync, so old target links dangle until then.
+Target `include`/`exclude` filters match flat names and are not rewritten; `move` warns when a
+filter result changes.
 
 ## new
 
